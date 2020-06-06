@@ -1,4 +1,4 @@
-
+//Tested by Aidan Lim 6/6/20
 #include "robot.hpp"
 
 //check for white pixels
