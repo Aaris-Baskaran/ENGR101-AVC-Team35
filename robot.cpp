@@ -1,4 +1,5 @@
 //Tested by Aidan Lim 6/6/20
+//Changed by Marius Minnie 8/6/20
 #include "robot.hpp"
 
 //check for white pixels
@@ -66,19 +67,33 @@ int main(){
 		}
 		
 		//Find error(findError function still isn't done)
-		error = findError(arraySize/2, sumIndexes/count);
+		if(count > 0){ //Check count to avoid division by 0
+			error = findError(arraySize/2, sumIndexes/count);
+		}else{
+			error = -1;
+		}
+		
+		
 		std::cout<<"error = "<<error<<std::endl; 
 		
 		// To do:
 		//find difference in speed according to error
 		//calculate and set speed of motors accordingly
 		
-		setMotors(vLeft,vRight);   
+		if(error >= 0){
+			//TODO: Calculate motor speed
+			//Check with team on calulating direction and speed of turn
+			
+		}else{
+			//Set Speed to 0 if no line is detected
+			vLeft = 0;
+			vRight = 0;
+		}
+		setMotors(vLeft,vRight); 
 		std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
 		usleep(10000);
+		
 		
   } // close while
 
 } // close main
-
-
