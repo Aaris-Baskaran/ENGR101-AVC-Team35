@@ -24,12 +24,13 @@ isWhite(int pixelValue)
 
 
 findError(int arrayCenter, int lineCenter)
-	-	Receives two numbers, the center of the array, and the center of white line in array
+	-	Receives three numbers, the center of the array, the sum of indexes of white pixels in array, and the number of white pixels.
 	-	Returns an int
 	-	Finds the difference between the array center and the white line center
 	-	And returns this value
-	-	If there are no white pixels, then return -1, we could add a ‘Lost Mode’ to tell robot what to do if it leaves the white line.
+	-	If there are no white pixels, then return 100, we could add a ‘Lost Mode’ to tell robot what to do if it leaves the white line.
 	-	End function
+
 
 
 main()
