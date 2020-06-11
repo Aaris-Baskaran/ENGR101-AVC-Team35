@@ -10,6 +10,8 @@ row:	      	Row number – int – 50
 error:		    Distance of line from center – int – not initialized
 arraySize:	  	Size of array – int – 150 
 pixArray:	    Array to store luminance of pixels – int – size 150 
+sumIndexes:		The sum of the values of the indexes with white pixels in the array – int – 0
+count:			The number of white pixels in the array – int – 0
 
 
 Functions:
