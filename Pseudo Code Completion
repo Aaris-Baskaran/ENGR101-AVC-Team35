@@ -1,0 +1,92 @@
+Pseudo code – Completion
+
+Variables:
+
+	Main:
+		rowColValue:		Row/Column to scan – int – 10
+		error:				Distance of line from center – int – not initialized
+		arraySizeTop:		Size of top array – int – 150 
+		arraySizeLeft:		Size of left array – int – 100 
+		pixArrayTop:		Array to store luminance of pixels – int – size 150 
+		pixArrayLeft:		Array to store luminance of pixels – int – size 100
+		sumIndexesTop:		Sum of values of indexes with white pixels in the top array – int – 0
+		sumIndexesLeft:		Sum of values of indexes with white pixels in the left array – int – 0
+		countTop:			The number of white pixels in the top array – int – 0
+		countLeft:			The number of white pixels in the left array – int – 0
+		vForward:			Constant speed of robot to go forward – int – 20 
+
+	driveRobot:
+		vLeft:			Speed of left motor – double 
+		vRight:			Speed of right motor – doulbe
+		vDifference:	Difference between motor speeds – int – not initialized
+
+	scanLine:
+		pixArray:		Temporary array to store luminance of pixels – int – variable size
+		int pix:		luminance of pixel – int
+
+Functions:
+
+	isWhite(int pixelValue)
+		-	Receives a number containing luminance value of a pixel, ranging from 0-255
+		-	Returns an int
+		-	Checks if the pixel is white (threshold is if value > 250)
+		-	If white, return 1
+		-	Else, return 0
+		-	End function
+
+	findError(int arrayCenter, int sumWhiteIndexes, int numWhitePixels)
+		-	Receives three numbers, the center of the array, the sum of indexes of white pixels in array, and the number of white pixels.
+		-	Returns an int
+		-	Finds the difference between the array center and the white line center
+		-	And returns this value
+		-	If there are no white pixels, then return 100, this signals to robot to go to ‘Lost Mode’ 
+		-	End function
+
+	driveRobot(int err)
+		-	Calculate difference in speed of left and right motors
+			-	Difference = k * error
+		-	Calculate the right and left speeds of the motor according to error.
+		-	Set speeds of motors to vForward +/- vDifference for right/left motor
+		-	Lost Mode:
+			-	If the line is lost, stop the robot. 
+			-	Make it turn 180 degrees
+			-	Start it again
+		-	End function
+
+	scanLine(int rowColNum, int L_or_T, int arraySize)
+	(L_or_T indicates whether to scan the top or left of image – 1=top, else, left)
+		-	Create temporary array for pixel values
+		-	For all rows/columns in a fixed column/row, 
+			-	Get luminance of pixel
+			-	Convert this to 1 if it is white, 0 if not white
+			-	Store this in the array of pixel values
+			-	End for
+		-	Return array of pixel values
+		-	End function
+
+
+	main()
+	Strategy: always turn left at intersections
+
+		-	Check if robot exists
+		-	Initialize variables
+		-	Main while loop for robot
+			-	Take picture and save as PPM file. Do not change name of PPM file.
+			-	Scan row from right of image
+			-	Scan column from left of image
+			-	Calculate sum of indexes with white pixels for each array
+			-	Calculate number of white pixels in each array
+			-	Calculate the error – distance of line from center
+				-	If white pixels present in left array, use sum and num white pixels calculated from left array
+				-	Otherwise, if white pixels present in top array, use sum and num white pixels calculated from top array
+			-	Move the robot according to the error found
+			-	End while
+		-	End main
+
+Changes from core: 
+-	Move the row that’s being scanned to the top of the screen.
+-	Scan a column at the left of the screen.
+-	Use more functions to perform tasks. 
+-	Everything to do with the pix values array is now doubled, as we need two arrays
+-	Choose whether to use the array with left values or the array with top values to calculate error – strategy is to turn left at intersections.
+-	Lost mode – turn the robot around.
