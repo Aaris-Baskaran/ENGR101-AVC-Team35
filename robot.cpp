@@ -35,7 +35,7 @@ int main(){
     double vLeft = 10.0;	//left motor speed
     double vRight = 10.0;	//right motor speed
     
-    int vForward;		//Constant speed of robot to go forward
+    int vForward = 20;		//Constant speed of robot to go forward
 	int vDifference;	//Difference between motor speeds
     
     int row = 50; 	//row number
