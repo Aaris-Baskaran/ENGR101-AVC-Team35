@@ -1,5 +1,8 @@
 //Tested by Aidan Lim 6/6/20
 //Changed by Marius Minnie 8/6/20
+//Changed by Aaris Baskaran 9/6/20
+//Tested by Aidan Lim 12/6/20
+//Tested by Aidan Lim 15/6/20
 #include "robot.hpp"
 
 //check for white pixels
@@ -14,9 +17,14 @@ int isWhite (int pixelValue){
 	
 }
 
-//find dicstance from white line to center of image
-int findError(int arrayCenter, int lineCenter){
-	return (arrayCenter - lineCenter);
+//find distance from white line to center of image
+int findError(int arrayCenter, int sumWhiteIndexes, int numWhitePixels){
+	if (numWhitePixels > 0){	//Check if the are white pixels to avoid division by 0
+		return (arrayCenter - (sumWhiteIndexes/numWhitePixels));
+	}
+	else{
+		return 100;
+	}
 }
 
 int main(){
@@ -28,7 +36,7 @@ int main(){
     double vLeft = 10.0;	//left motor speed
     double vRight = 10.0;	//right motor speed
     
-    int vForward;		//Constant speed of robot to go forward
+    int vForward = 20;		//Constant speed of robot to go forward
 	int vDifference;	//Difference between motor speeds
     
     int row = 50; 	//row number
@@ -66,33 +74,28 @@ int main(){
 			}
 		}
 		
-		//Find error(findError function still isn't done)
-		if(count > 0){ //Check count to avoid division by 0
-			error = findError(arraySize/2, sumIndexes/count);
-		}else{
-			error = -1;
-		}
+		//Find error
+		error = findError(arraySize/2, sumIndexes, count);
 		
+		if(error < 100){ 
+			vDifference = 0.5*error;
+		}else{
+			error = 0;
+			vDifference = error;
+		}
 		
 		std::cout<<"error = "<<error<<std::endl; 
 		
-		// To do:
-		//find difference in speed according to error
-		//calculate and set speed of motors accordingly
+		vLeft = vForward - vDifference;
+		vRight = vForward + vDifference;
 		
-		if(error >= 0){
-			//TODO: Calculate motor speed
-			//Check with team on calulating direction and speed of turn
-			
-		}else{
-			//Set Speed to 0 if no line is detected
-			vLeft = 0;
-			vRight = 0;
-		}
 		setMotors(vLeft,vRight); 
 		std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
 		usleep(10000);
 		
+		// To do:
+		//Add lost mode
+		//see if we can use more functions instead of long main function
 		
   } // close while
 
