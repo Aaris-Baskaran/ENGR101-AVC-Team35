@@ -1,88 +1,89 @@
 //Tested by Aidan Lim 18/6/20
+//Changed by Charles Erasmus 18/6/20
 #include "robot.hpp"
 
 //check for white pixels
 int isWhite (int pixelValue){
-	
-	//return 1 if pixel is white, otherwise return 0 
-	if (pixelValue > 250){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-	
+
+    //return 1 if pixel is white, otherwise return 0
+    if (pixelValue > 250){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
 } // close isWhite
 
 //find distance from white line to center of image
 int findError(int arrayCenter, int sumWhiteIndexes, int numWhitePixels){
-	if (numWhitePixels > 0){	//Check if there are white pixels to avoid division by 0
-		return (arrayCenter - (sumWhiteIndexes/numWhitePixels));
-	}
-	else{
-		return 100;
-	}
+    if (numWhitePixels > 0){	//Check if there are white pixels to avoid division by 0
+        return (arrayCenter - (sumWhiteIndexes/numWhitePixels));
+    }
+    else{
+        return 100;
+    }
 
 } // close findError
 
 void driveRobot(int speed, int err){
-	
-	//Declare/Initialise variables
+
+    //Declare/Initialise variables
     double vLeft = 10.0;	//left motor speed
     double vRight = 10.0;	//right motor speed
-	int vDifference;		//Difference between motor speeds
-	
-	//set the difference in speed of motors
-	if(err < 100){ 
-		vDifference = 0.5*err;
-	}
-	else{
-		//add 'lost mode' here
-		//ignore the lost mode for now - delete this code and replace with lost mode code
-		err = 0;	
-		vDifference = err;
-	}
-	
-	std::cout<<"error = "<<err<<std::endl; 
-	
-	//calculate motor speeds
-	vLeft = speed - vDifference;
-	vRight = speed + vDifference;
-	
-	//Set motor speeds
-	setMotors(vLeft,vRight);
-	std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
-	
+    int vDifference;		//Difference between motor speeds
+
+    //set the difference in speed of motors
+    if(err < 100){
+        vDifference = 0.5*err;
+    }
+    else{
+        //add 'lost mode' here
+        //ignore the lost mode for now - delete this code and replace with lost mode code
+        err = 0;
+        vDifference = err;
+    }
+
+    std::cout<<"error = "<<err<<std::endl;
+
+    //calculate motor speeds
+    vLeft = speed - vDifference;
+    vRight = speed + vDifference;
+
+    //Set motor speeds
+    setMotors(vLeft,vRight);
+    std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
+
 } // close driveRobot
 
 int* scanLine(int rowColNum, int L_or_T, int arraySize){
-	//scan a line of pixels
-	
-	int pixArray[arraySize];		//Create array for top pixel values, declared as static
-	int pix;
-	
-	for( int rowCol = 0; rowCol < arraySize; rowCol++){
-		if (L_or_T == 1){
-			pix = get_pixel(cameraView,rowColNum,rowCol,3);
-		}else{
-			pix = get_pixel(cameraView,rowCol,rowColNum,3);
-		}
-		
-		int pixValue = isWhite(pix);			//call isWhite function
-		
-		std::cout<<pixValue<<" ";
-		
-		pixArray[rowCol] = pixValue;
-		
-	} // close for
-	return pixArray;
+    //scan a line of pixels
+
+    int pixArray[arraySize];		//Create array for top pixel values, declared as static
+    int pix;
+
+    for( int rowCol = 0; rowCol < arraySize; rowCol++){
+        if (L_or_T == 1){
+            pix = get_pixel(cameraView,rowColNum,rowCol,3);
+        }else{
+            pix = get_pixel(cameraView,rowCol,rowColNum,3);
+        }
+
+        int pixValue = isWhite(pix);			//call isWhite function
+
+        std::cout<<pixValue<<" ";
+
+        pixArray[rowCol] = pixValue;
+
+    } // close for
+    return pixArray;
 }
 
 int main(){
-	if (initClientRobot() !=0){
-		std::cout<<" Error initializing robot"<<std::endl;
-	}
-	
+    if (initClientRobot() !=0){
+        std::cout<<" Error initializing robot"<<std::endl;
+    }
+
     //Declare/Initialise variables
     int rowColValue = 10; 						//row/column to scan
     int error;									//distance of line from center
@@ -90,48 +91,56 @@ int main(){
     int arraySizeLeft = 100;					//Size of left array
     int* pixArrayTop;							//Create array for top pixel values
     int* pixArrayLeft;							//Create array for left pixel values
-    int sumIndexesTop = 0;						//The sum of the values of the indexes with white pixels in the top array 
-    int sumIndexesLeft = 0;						//The sum of the values of the indexes with white pixels in the left array 
+    int sumIndexesTop = 0;						//The sum of the values of the indexes with white pixels in the top array
+    int sumIndexesLeft = 0;						//The sum of the values of the indexes with white pixels in the left array
     int countTop = 0;							//The number of white pixels in the top array
     int countLeft = 0;							//The number of white pixels in the left array
     int vForward = 20;							//Standard speed of robot
-	
-	
+
+
     //main loop
     while(1){
-		
-		takePicture();						//get picture
-		SavePPMFile("i0.ppm",cameraView);	//save picture
-		
-		//Scan values from top of image
-		pixArrayTop = scanLine(rowColValue, 1, arraySizeTop);
-		
-		//Scan Values from left of image
-		
-		
-		//Find sum and number of indexes of white pixels in top array
-		sumIndexesTop = 0;
-		countTop = 0;
-		for (int i = 0; i < arraySizeTop; i++){
-			if (pixArrayTop[i] == 1){
-				sumIndexesTop = sumIndexesTop + i;
-				countTop++;
-			}
-		}
-		
-		//Find sum and number of indexes of white pixels in left array
-		
-		
-		//find error according to whether left array has white pixels or not
-		
-		//Find error
-		error = findError(arraySizeTop/2, sumIndexesTop, countTop);
-		
-		//Move the robot
-		driveRobot(vForward,error);
-		
-		usleep(10000);
-		
-  } // close while
+
+        takePicture();						//get picture
+        SavePPMFile("i0.ppm",cameraView);	//save picture
+
+        //Scan values from top of image
+        pixArrayTop = scanLine(rowColValue, 1, arraySizeTop);
+
+        //Scan Values from left of image
+        pixArrayLeft = scanLine(rowColValue, 1, arraySizeLeft);
+
+        //Find sum and number of indexes of white pixels in top array
+        sumIndexesTop = 0;
+        countTop = 0;
+        for (int i = 0; i < arraySizeTop; i++){
+            if (pixArrayTop[i] == 1){
+                sumIndexesTop = sumIndexesTop + i;
+                countTop++;
+            }
+        }
+
+        //Find sum and number of indexes of white pixels in left array
+        sumIndexesLeft = 0;
+        countLeft = 0;
+        for (int i = 0; i < arraySizeLeft; i++){
+            if (pixArrayLeft[i] == 1){
+                sumIndexesLeft = sumIndexesLeft + i;
+                countTop++;
+            }
+        }
+
+
+        //find error according to whether left array has white pixels or not
+
+        //Find error
+        error = findError(arraySizeTop/2, sumIndexesTop, countTop);
+
+        //Move the robot
+        driveRobot(vForward,error);
+
+        usleep(10000);
+
+    } // close while
 
 } // close main
