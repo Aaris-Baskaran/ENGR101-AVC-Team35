@@ -87,6 +87,7 @@ int main(){
     //Declare/Initialise variables
     int rowColValue = 10; 						//row/column to scan
     int error;									//distance of line from center
+    int errorLeft;                              //if line is on left
     int arraySizeTop = 150;						//Size of top array
     int arraySizeLeft = 100;					//Size of left array
     int* pixArrayTop;							//Create array for top pixel values
@@ -132,7 +133,7 @@ int main(){
 
 
         //find error according to whether left array has white pixels or not
-
+        errorLeft = findError(arraySizeLeft/2, sumIndexesLeft, countLeft);
         //Find error
         error = findError(arraySizeTop/2, sumIndexesTop, countTop);
 
