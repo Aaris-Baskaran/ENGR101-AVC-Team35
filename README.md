@@ -20,7 +20,7 @@ brew install sfml
 	
 	The new command should look something like:		g++ -Wall -o "%e" "%f" -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 
-7.	Download the AVC_Mac zip file from the ENGR101 Project 3 web page. 
+7.	Download the AVC_Mac zip file from the ENGR101 Project 3 web page (Usually Mac OS will extract zipped files automatically, but if it is still zipped then extract it first). 
 
 8.	Open the robot.cpp and server3.cpp files in Geany. 
 
