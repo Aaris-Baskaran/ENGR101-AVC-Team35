@@ -1,4 +1,4 @@
-
+//Tested by Aidan Lim 19/6/20
 #include "robot.hpp"
 
 //check for colour of pixels
