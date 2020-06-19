@@ -1,0 +1,124 @@
+-----------
+PSEUDO CODE
+-----------
+
+VARIABLES:
+
+Main:
+	mode:				Maze mode – int – not initialized
+
+driveRobot:
+	vLeft:				Speed of left motor – double 
+	vRight:				Speed of right motor – doulbe
+	vDifference:		Difference between motor speeds – int – not initialized
+
+scanLine:
+	pixArray:			Temporary array to store luminance of pixels – int – arraySize
+	int pix:			luminance of pixel – int
+
+coreCompletion:
+	colValue:			Column to scan – int – 10
+	rowValue:			Row to scan – int – 50
+	error:				Distance of line from center – int – not initialized
+	arraySizeTop:		Size of top array – int – 150 
+	arraySizeLeft:		Size of left array – int – 100 
+	pixArrayTop:		Array to store luminance of pixels – int – not initialized
+	pixArrayLeft:		Array to store luminance of pixels – int – not initialized
+	sumIndexesTop:		Sum of values of indexes with white pixels in the top array – int – 0
+	sumIndexesLeft:		Sum of values of indexes with white pixels in the left array – int – 0
+	countTop:			The number of white pixels in the top array – int – 0
+	countLeft:			The number of white pixels in the left array – int – 0
+	vForward:			Constant speed of robot to go forward – int – 20 
+
+challenge:
+	colValue:			Column to scan – int – 25
+	arraySize:			Size of array – int – 100 
+	pixArray:			Array to store luminance of pixels – int – not initialized
+	sumIndexes:			Sum of values of indexes with red pixels in the array – int – 0
+	count:				The number of red pixels in the array – int – 0
+	vLeft;				Left motor speed – double – 10 
+   	vRight;				Right motor speed – double – 20 
+	noRed;				Time since last red pixel was detected – int – 0 
+
+
+FUNCTIONS:
+
+isColour(int pixelValue)
+	-	Receives a number containing luminance value of a pixel, ranging from 0-255
+	-	Returns an int
+	-	Checks if the luminance is greater than the threshold (threshold value is 250)
+	-	If yes, return 1
+	-	Else, return 0
+	-	End function
+
+findError(int arrayCenter, int sumWhiteIndexes, int numWhitePixels)
+	-	Receives three numbers, the center of the array, the sum of indexes of white pixels in array, and the number of white pixels.
+	-	Returns an int
+	-	Finds the difference between the array center and the white line center
+	-	And returns this value
+	-	If there are no white pixels, then return 100, this signals to robot to go to ‘Lost Mode’ 
+	-	End function
+
+driveRobot(int speed, int err)
+	-	Calculate difference in speed of left and right motors
+		-	Difference = k * error
+	-	Calculate the right and left speeds of the motor according to error.
+	-	Set speeds of motors to vForward +/- vDifference for right/left motor
+	-	Lost Mode:
+		-	Turn around
+	-	End function
+
+scanLine(int rowColNum, int LeftTopMode, int arraySize)
+(LeftTopMode indicates whether to scan the top or left of image, and tells it what mode its in: 1=top, 2= left, and 3=challenge)
+	-	Create temporary array for pixel values
+	-	For all rows/columns in a fixed column/row, 
+		-	Get luminance of pixel
+		-	Convert this to 1 if it is white/red, 0 if not
+		-	Store this in the array of pixel values
+		-	End for
+	-	Return array of pixel values
+	-	End function
+
+void goForward(int amount)
+	-	For a set amount of time, move the robot forward
+
+void goLeft(int amount)
+	-	For a set amount of time, turn the robot left
+
+void coreCompletion()
+Strategy: always turn left at intersections
+
+	-	Initialize variables
+	-	Main while loop for robot
+		-	Take picture and save as PPM file. Do not change name of PPM file.
+		-	Scan row from top of image
+		-	Scan column from left of image
+		-	Calculate sum of indexes with white pixels for each array
+		-	Calculate number of white pixels in each array
+		-	Calculate the error – distance of line from center
+			-	If white pixels present in left array, use sum and num white pixels calculated from left array
+			-	Otherwise, if white pixels present in top array, use sum and num white pixels calculated from top array
+		-	Move the robot according to the error found
+		-	End while
+	-	End completion
+
+
+void challenge()
+Strategy: continuously turn left, if a wall is detected to the left, then turn away from it. If there is no wall found for some time, then do a u-turn. 
+
+	-	Initialize variables
+	-	Main while loop for robot
+		-	Take picture and save as PPM file. Do not change name of PPM file.
+		-	Scan column from left of image
+		-	Look through array to find red pixels
+		-	If there are red pixels in the array, turn right. If not, slight left. 
+		-	If there are no red pixels found for a while, perform a u-turn.
+		-	End while
+	-	End challenge
+	
+
+main()
+	-	Check if robot exists
+	-	Ask for user input to decide the mode.
+	-	Set mode, core/completion or challenge, according to user input.
+	-	End main
