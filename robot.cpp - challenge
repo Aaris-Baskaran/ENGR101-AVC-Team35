@@ -1,0 +1,279 @@
+
+#include "robot.hpp"
+
+//check for colour of pixels
+int isColour (int pixelValue){
+	
+	//return 1 if pixel is the colour, otherwise return 0 
+	if (pixelValue > 250){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+	
+} // close isColour
+
+//find distance from white line to center of image
+int findError(int arrayCenter, int sumWhiteIndexes, int numWhitePixels){
+	if (numWhitePixels > 0){	//Check if there are white pixels to avoid division by 0
+		return (arrayCenter - (sumWhiteIndexes/numWhitePixels));
+	}
+	else{
+		return 100;
+	}
+
+} // close findError
+
+//make robot go straight ahead for some amount of time
+void goForward(int amount){
+	//Set motor speeds
+	for (int i = 0; i < amount; i++){
+		setMotors(20,20);
+		std::cout<<"Forward"<<std::endl;
+		usleep(10000);
+	}
+}
+
+//make robot go left for some amount of time
+void goLeft(int amount){
+	//Set motor speeds
+	for (int i = 0; i < amount; i++){
+		setMotors(0,10);
+		std::cout<<"Left"<<std::endl;
+		usleep(10000);
+	}
+}
+
+void driveRobot(int speed, int err){
+	
+	//Declare/Initialise variables
+    double vLeft = 10.0;	//left motor speed
+    double vRight = 10.0;	//right motor speed
+	double vDifference;		//Difference between motor speeds
+	
+	//set the difference in speed of motors
+	if(err < 100){ 
+		vDifference = 0.3*err;
+	}
+	else{
+		//lost mode
+		goForward(30);
+		goLeft(90);
+		goForward(20);	
+		std::cout<<" LOST MODE ";
+		vDifference = 0;
+	}
+	
+	std::cout<<"error = "<<err<<std::endl; 
+	
+	//calculate motor speeds
+	vLeft = speed - vDifference;
+	vRight = speed + vDifference;
+	
+	//Set motor speeds
+	setMotors(vLeft,vRight);
+	std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
+	
+} // close driveRobot
+
+//scan a line of pixels from an image
+int* scanLine(int rowColNum, int LeftTopMode, int arraySize){
+	
+	int pixArray[arraySize];			//Create array for top pixel values, declared as static
+	int pix;							//store value of a pixel - 1 or 0
+	
+	for( int rowCol = 0; rowCol < arraySize; rowCol++){
+		
+		if (LeftTopMode == 1){	
+			//scan a row for white pixels
+			pix = get_pixel(cameraView,rowColNum,rowCol,3);
+		}else if (LeftTopMode == 2){
+			//scan a column for white pixels
+			pix = get_pixel(cameraView,rowCol,rowColNum,3);
+		}else if (LeftTopMode == 3){
+			//scan a column for red pixels
+			pix = get_pixel(cameraView,rowCol,rowColNum,0);
+		}
+		
+		//check if current pixel is a certain colour or not
+		int pixValue = isColour(pix);
+		
+		std::cout<<pixValue<<" ";
+		
+		//put the pix value into the array
+		pixArray[rowCol] = pixValue;
+		
+	} // close for
+	
+	//std::cout<<" Left or Top "<<LeftTopMode;
+	return pixArray;
+}
+
+
+void coreCompletion(){
+	
+    //Declare/Initialise variables
+    int arraySizeTop = 150;							//Size of top array
+    int* pixArrayTop = new int[arraySizeTop];		//Create array for top pixel values
+    int colValue = 10; 								//column to scan
+    int rowValue = 50; 								//row to scan
+    int error;										//distance of line from center
+    int arraySizeLeft = 100;						//Size of left array
+    int* pixArrayLeft = new int[arraySizeLeft];		//Create array for left pixel values
+    int sumIndexesTop = 0;							//The sum of the values of the indexes with white pixels in the top array 
+    int sumIndexesLeft = 0;							//The sum of the values of the indexes with white pixels in the left array 
+    int countTop = 0;								//The number of white pixels in the top array
+    int countLeft = 0;								//The number of white pixels in the left array
+    int vForward = 20;								//Standard speed of robot
+	
+    //main loop
+    while(1){
+		
+		takePicture();						//get picture
+		SavePPMFile("i0.ppm",cameraView);	//save picture
+		
+		//Scan values from top of image
+		pixArrayTop = scanLine(rowValue, 1, arraySizeTop);
+		
+		//Find sum and number of indexes of white pixels in top array
+		sumIndexesTop = 0;
+		countTop = 0;
+		for (int i = 0; i < arraySizeTop; i++){
+			if (pixArrayTop[i] == 1){
+				sumIndexesTop = sumIndexesTop + i;
+				countTop++;
+			}
+		}
+		
+		//Scan Values from left of image
+		pixArrayLeft = scanLine(colValue, 2, arraySizeLeft);
+		
+		//Find sum and number of indexes of white pixels in left array
+		sumIndexesLeft = 0;
+        countLeft = 0;
+        for (int j = 0; j < arraySizeLeft; j++){
+            if (pixArrayLeft[j] == 1){
+                sumIndexesLeft = sumIndexesLeft + j;
+                countLeft++;
+            }
+        }
+		
+		//find error according to whether left array has white pixels or not
+		if (countLeft > 0){		
+			error = -findError(0, sumIndexesLeft, countLeft);
+			std::cout<<" Using Left Line ";
+		}else {
+			error = findError(arraySizeTop/2, sumIndexesTop, countTop);
+			
+			std::cout<<" Using Top Line ";
+		}
+		
+		//Move the robot
+		driveRobot(vForward,error);
+		
+		usleep(10000);
+		
+  } // close while
+	
+} // close coreCompletion
+
+void challenge(){
+	
+    //Declare/Initialise variables
+    int colValue = 25; 					//column to scan
+    int arraySize = 100;				//Size of array
+    int* pixArray;						//Create array for left pixel values
+    int count = 0;						//The number of red pixels in the array
+    int sumIndexes = 0;					//The sum of the values of the indexes with red pixels in the array 
+	double vLeft = 10.0;				//left motor speed
+    double vRight = 20.0;				//right motor speed
+	int noRed = 0;
+	
+	goForward(50);
+	
+    //main loop
+    while(1){
+		
+		takePicture();						//get picture
+		SavePPMFile("i0.ppm",cameraView);	//save picture
+		
+		//time since last wall was seen
+		noRed++;
+		
+		//Scan Values from left or center of image
+		//not needed right now, develop further for advanced wall detection
+		if (noRed > 10){
+			colValue = 75;
+		}else{
+			colValue = 25;
+		}
+		
+		//scan a line of pixels
+		pixArray = scanLine(colValue, 3, arraySize);
+		
+		//Find number of red pixels in array
+		sumIndexes = 0;
+		count = 0;
+		for (int i = 0; i < arraySize; i++){
+			if (pixArray[i] == 1){
+				sumIndexes = sumIndexes + i;
+				count++;
+			}
+		}
+		
+		//move robot according to whether there are red pixels in the array or not
+		if (count > 0){
+			//wall is detected, turn away
+			noRed = 0;		//reset time since last wall seen
+			vLeft = 20;
+			vRight = 10;
+		}else{
+			
+			if (noRed > 8){		//been a while since we've seen a wall...
+				//do a turn
+				goForward(27);
+				goLeft(27);
+				goForward(27);
+				goLeft(30);
+				goForward(100);
+			}else{
+			//hasn't been long sice we've seen a wall,
+			//turn left towards the walls
+			goForward(1);
+			vLeft = 10;
+			vRight = 15;
+			}
+		}
+		
+		//set motor speeds
+		setMotors(vLeft,vRight);
+		std::cout<<" vLeft="<<vLeft<<"  vRight="<<vRight<<std::endl;
+		
+		usleep(10000);
+		
+	} // close while
+
+} // close challenge
+
+int main(){
+	if (initClientRobot() !=0){
+		std::cout<<" Error initializing robot"<<std::endl;
+	}
+	
+	//declare variable
+	int mode;
+	
+	//ask for user input to decide the mode
+	std::cout<<" Enter 1 for Core/Completion, or 2 for Challenge: ";
+	std::cin>>mode;
+	
+	//choose mode based on user input
+	if (mode == 1){
+		coreCompletion();
+	}
+	else if (mode == 2){
+		challenge();
+	}
+
+} // close main
